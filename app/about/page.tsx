@@ -1,40 +1,42 @@
-import { Activity, Boxes, GitBranch } from "lucide-react";
+import { Camera, Layers3, TerminalSquare } from "lucide-react";
 
 const principles = [
   {
-    icon: GitBranch,
-    title: "과정을 기록합니다",
-    description: "결과만 나열하지 않고 선택, 실패, 수정의 흐름을 함께 남깁니다.",
+    icon: Camera,
+    title: "LIFE LOG",
+    description: "금방 지나갈 하루와 오래 좋아하는 취미, 다시 보고 싶은 사진을 남깁니다.",
   },
   {
-    icon: Boxes,
-    title: "작게 배포합니다",
-    description: "완벽해질 때까지 기다리지 않고 관찰 가능한 작은 단위로 운영합니다.",
+    icon: TerminalSquare,
+    title: "TECH LOG",
+    description: "직접 만들고 배포하고 운영하면서 선택하고 실패하고 배운 과정을 기록합니다.",
   },
   {
-    icon: Activity,
-    title: "측정하며 이해합니다",
-    description: "느낌 대신 메트릭, 로그, 트레이스로 시스템의 상태를 확인합니다.",
+    icon: Layers3,
+    title: "ONE ARCHIVE",
+    description: "서로 다른 두 관심사를 나누어 보여 주되 하나의 정체성과 기록으로 쌓습니다.",
   },
 ] as const;
 
 export const metadata = {
-  title: "About",
-  description: "MAACKIA.LOG와 이곳에 기록하는 주제를 소개합니다.",
+  title: "소개",
+  description: "MAACKIA.LOG의 LIFE LOG와 TECH LOG를 소개합니다.",
 };
 
 export default function AboutPage() {
   return (
     <section className="mx-auto w-full max-w-7xl px-5 py-16 md:px-8 md:py-24">
-      <p className="text-orange font-mono text-xs font-bold tracking-[0.16em]">ABOUT THIS LOG</p>
+      <p className="text-orange font-mono text-xs font-bold tracking-[0.16em]">
+        ABOUT THIS JOURNAL
+      </p>
       <h1 className="font-display mt-4 max-w-4xl text-5xl font-black leading-[1] tracking-[-0.06em] md:text-7xl">
-        운영해 본 것만큼
+        만드는 나와
         <br />
-        정확한 문서는 없습니다.
+        살아가는 나를 함께 남깁니다.
       </h1>
       <p className="text-muted mt-8 max-w-2xl text-lg leading-8">
-        MAACKIA.LOG는 React 애플리케이션을 만들고 컨테이너로 패키징해
-        Kubernetes에 배포하는 전 과정을 기록하는 개인 엔지니어링 노트입니다.
+        MAACKIA.LOG는 개발과 운영을 기록하는 TECH LOG, 일상과 취미와 사진을 남기는
+        LIFE LOG로 이루어진 하나의 개인 블로그입니다.
       </p>
 
       <div className="mt-16 grid gap-4 md:grid-cols-3">

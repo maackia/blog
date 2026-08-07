@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   const { tag } = await params;
   return {
     title: `#${tag}`,
-    description: `${tag} 주제로 작성한 엔지니어링 노트입니다.`,
+    description: `${tag} 주제로 작성한 전체 기록입니다.`,
   };
 }
 

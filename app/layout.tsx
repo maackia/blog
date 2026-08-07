@@ -24,10 +24,10 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     images: [
       {
-        url: `${siteConfig.url}/og.png`,
-        width: 1730,
-        height: 909,
-        alt: "MAACKIA.LOG — BUILD / RUN / OBSERVE",
+        url: `${siteConfig.url}/og-dual.png`,
+        width: 1727,
+        height: 911,
+        alt: "MAACKIA.LOG — LIFE LOG / TECH LOG",
       },
     ],
   },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [`${siteConfig.url}/og.png`],
+    images: [`${siteConfig.url}/og-dual.png`],
   },
 };
 
