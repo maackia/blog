@@ -61,7 +61,7 @@ export function ChannelHome({ channel }: { channel: Channel }) {
           <div className="mb-8 flex flex-wrap gap-2">
             {page.interests.map(({ icon: Icon, label }) => (
               <span
-                className="border-ink/15 flex items-center gap-2 rounded-full border bg-white/35 px-3 py-1.5 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.08em]"
+                className="border-ink/15 bg-surface/60 flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.08em]"
                 key={label}
               >
                 <Icon aria-hidden="true" size={13} />

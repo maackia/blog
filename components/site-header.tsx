@@ -1,6 +1,7 @@
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { ChannelSwitcher } from "@/components/channel-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SiteHeader() {
   return (
@@ -10,7 +11,7 @@ export function SiteHeader() {
           className="group flex items-center gap-3 font-mono text-sm font-bold tracking-[0.14em]"
           href="/"
         >
-          <span className="bg-acid text-ink grid size-8 place-items-center rounded-full transition-transform group-hover:-rotate-6">
+          <span className="bg-acid text-acid-ink grid size-8 place-items-center rounded-full transition-transform group-hover:-rotate-6">
             M
           </span>
           <span className="hidden sm:inline">MAACKIA.LOG</span>
@@ -18,6 +19,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2 md:gap-4">
           <ChannelSwitcher />
+          <ThemeToggle />
           <Link
             aria-label="블로그 소개"
             className="hover:bg-ink hover:text-paper grid size-9 place-items-center rounded-full text-sm font-semibold transition-colors md:flex md:w-auto md:px-4"

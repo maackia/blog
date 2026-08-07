@@ -45,13 +45,13 @@ export default function HomePage() {
       <div className="mt-14 grid gap-4 md:grid-cols-2">
         {entries.map(({ href, number, label, title, description, icon: Icon, count }) => (
           <Link
-            className="border-ink/15 group relative min-h-80 overflow-hidden rounded-[2rem] border bg-white/35 p-7 transition-transform hover:-translate-y-1 md:p-9"
+            className="border-ink/15 bg-surface/60 group relative min-h-80 overflow-hidden rounded-[2rem] border p-7 transition-transform hover:-translate-y-1 md:p-9"
             href={href}
             key={href}
           >
             <div className="flex items-start justify-between">
               <span className="text-orange font-mono text-xs">/{number}</span>
-              <span className="border-ink/15 group-hover:bg-acid grid size-12 place-items-center rounded-full border transition-colors">
+              <span className="border-ink/15 group-hover:bg-acid group-hover:text-acid-ink grid size-12 place-items-center rounded-full border transition-colors">
                 <ArrowUpRight aria-hidden="true" size={20} />
               </span>
             </div>

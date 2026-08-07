@@ -6,14 +6,47 @@
   --color-ink: #171914;
   --color-muted: #686c61;
   --color-acid: #c7ff45;
+  --color-acid-ink: #171914;
   --color-orange: #ff7043;
+  --color-surface: #ffffff;
+  --color-panel: #171914;
+  --color-panel-ink: #f4f0e8;
   --font-display: "Arial Narrow", "Pretendard", "Noto Sans KR", sans-serif;
   --font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
   --font-mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
 }
 
 :root {
-  color-scheme: light;
+  --color-paper: #f4f0e8;
+  --color-ink: #171914;
+  --color-muted: #686c61;
+  --color-acid: #c7ff45;
+  --color-acid-ink: #171914;
+  --color-orange: #ff7043;
+  --color-surface: #ffffff;
+  --color-panel: #171914;
+  --color-panel-ink: #f4f0e8;
+  --page-glow: rgb(199 255 69 / 18%);
+  --grid-line: rgb(23 25 20 / 7%);
+  --inline-code: rgb(23 25 20 / 8%);
+  --image-border: rgb(23 25 20 / 10%);
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"] {
+  --color-paper: #111015;
+  --color-ink: #f1eef5;
+  --color-muted: #aaa4b0;
+  --color-acid: #a970ff;
+  --color-acid-ink: #160d20;
+  --color-orange: #ff805d;
+  --color-surface: #1b1920;
+  --color-panel: #18161d;
+  --color-panel-ink: #f1eef5;
+  --page-glow: transparent;
+  --grid-line: rgb(241 238 245 / 9%);
+  --inline-code: rgb(241 238 245 / 10%);
+  --image-border: rgb(241 238 245 / 13%);
 }
 
 * {
@@ -26,17 +59,20 @@ html {
 
 body {
   background:
-    radial-gradient(circle at 88% 8%, rgb(199 255 69 / 18%), transparent 26rem),
+    radial-gradient(circle at 88% 8%, var(--page-glow), transparent 26rem),
     var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
   text-rendering: optimizeLegibility;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 ::selection {
   background: var(--color-acid);
-  color: var(--color-ink);
+  color: var(--color-acid-ink);
 }
 
 a,
@@ -46,8 +82,8 @@ button {
 
 .technical-grid {
   background-image:
-    linear-gradient(rgb(23 25 20 / 7%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(23 25 20 / 7%) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -57,9 +93,17 @@ button {
   --tw-prose-links: var(--color-ink);
   --tw-prose-bold: var(--color-ink);
   --tw-prose-code: var(--color-ink);
-  --tw-prose-pre-bg: var(--color-ink);
+  --tw-prose-lead: var(--color-muted);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-muted);
+  --tw-prose-hr: var(--grid-line);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-pre-code: var(--color-panel-ink);
+  --tw-prose-pre-bg: var(--color-panel);
   --tw-prose-quotes: var(--color-ink);
   --tw-prose-quote-borders: var(--color-acid);
+  --tw-prose-th-borders: var(--grid-line);
+  --tw-prose-td-borders: var(--grid-line);
   font-size: 1.05rem;
   line-height: 1.9;
 }
@@ -76,7 +120,7 @@ button {
 }
 
 .prose-blog :where(code):not(:where(pre *)) {
-  background: rgb(23 25 20 / 8%);
+  background: var(--inline-code);
   border-radius: 0.3rem;
   padding: 0.15em 0.35em;
 }
@@ -87,7 +131,7 @@ button {
 }
 
 .prose-blog :where(img) {
-  border: 1px solid rgb(23 25 20 / 10%);
+  border: 1px solid var(--image-border);
   border-radius: 1.5rem;
 }
 
