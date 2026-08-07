@@ -2,7 +2,7 @@
 
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { resolveTheme, themeStorageKey, type Theme } from "@/lib/theme";
+import { isTheme, resolveTheme, themeStorageKey, type Theme } from "@/lib/theme";
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
@@ -29,7 +29,7 @@ export function ThemeToggle() {
     const frame = window.requestAnimationFrame(() => setTheme(initialTheme));
 
     const followSystemTheme = (event: MediaQueryListEvent) => {
-      if (getStoredTheme() === null) {
+      if (!isTheme(getStoredTheme())) {
         const nextTheme = event.matches ? "dark" : "light";
         applyTheme(nextTheme);
         setTheme(nextTheme);
