@@ -1,5 +1,45 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnp.*
+.yarn/cache/
+.yarn/install-state.gz
+
+# Build output and framework caches
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.vite/
+.turbo/
+*.tsbuildinfo
+
+# Tests and reports
+coverage/
+playwright-report/
+test-results/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*.pem
+*.key
+
+# Kubernetes local credentials and secret manifests
+.kube/
+kubeconfig
+kubeconfig.*
+*.secret.yaml
+*.secret.yml
+*-secret.yaml
+*-secret.yml
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +47,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editors and operating systems
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-paper: #f4f0e8;
+  --color-ink: #171914;
+  --color-muted: #686c61;
+  --color-acid: #c7ff45;
+  --color-orange: #ff7043;
+  --font-display: "Arial Narrow", "Pretendard", "Noto Sans KR", sans-serif;
+  --font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  --font-mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at 88% 8%, rgb(199 255 69 / 18%), transparent 26rem),
+    var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-acid);
+  color: var(--color-ink);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.technical-grid {
+  background-image:
+    linear-gradient(rgb(23 25 20 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 25 20 / 7%) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.prose-blog {
+  --tw-prose-body: var(--color-ink);
+  --tw-prose-headings: var(--color-ink);
+  --tw-prose-links: var(--color-ink);
+  --tw-prose-bold: var(--color-ink);
+  --tw-prose-code: var(--color-ink);
+  --tw-prose-pre-bg: var(--color-ink);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-acid);
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.prose-blog :where(h2, h3) {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.prose-blog :where(a) {
+  text-decoration-color: var(--color-acid);
+  text-decoration-thickness: 0.18em;
+  text-underline-offset: 0.18em;
+}
+
+.prose-blog :where(code):not(:where(pre *)) {
+  background: rgb(23 25 20 / 8%);
+  border-radius: 0.3rem;
+  padding: 0.15em 0.35em;
+}
+
+.prose-blog :where(code):not(:where(pre *))::before,
+.prose-blog :where(code):not(:where(pre *))::after {
+  content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
