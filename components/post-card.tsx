@@ -30,7 +30,7 @@ export function PostCard({ post, index }: PostCardProps) {
           </time>
           {post.tags.map((tag) => (
             <Link
-              className="bg-ink/6 hover:bg-acid rounded-full px-2.5 py-1 font-mono text-[0.68rem] font-semibold uppercase transition-colors"
+              className="bg-ink/6 hover:bg-acid hover:text-acid-ink rounded-full px-2.5 py-1 font-mono text-[0.68rem] font-semibold uppercase transition-colors"
               href={`/${post.channel}/tags/${tag}`}
               key={tag}
             >
@@ -51,7 +51,7 @@ export function PostCard({ post, index }: PostCardProps) {
 
       <Link
         aria-label={`${post.title} 읽기`}
-        className="border-ink/15 hover:bg-acid grid size-11 place-items-center rounded-full border transition-all group-hover:translate-x-1 group-hover:-translate-y-1"
+        className="border-ink/15 hover:bg-acid hover:text-acid-ink grid size-11 place-items-center rounded-full border transition-all group-hover:translate-x-1 group-hover:-translate-y-1"
         href={`/${post.channel}/posts/${post.slug}`}
       >
         <ArrowUpRight aria-hidden="true" size={19} />

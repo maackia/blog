@@ -41,7 +41,10 @@ export default function AboutPage() {
 
       <div className="mt-16 grid gap-4 md:grid-cols-3">
         {principles.map(({ icon: Icon, title, description }, index) => (
-          <article className="border-ink/15 rounded-3xl border bg-white/30 p-6" key={title}>
+          <article
+            className="border-ink/15 bg-surface/55 rounded-3xl border p-6"
+            key={title}
+          >
             <div className="flex items-center justify-between">
               <Icon aria-hidden="true" size={22} />
               <span className="text-muted font-mono text-xs">0{index + 1}</span>

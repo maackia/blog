@@ -9,7 +9,10 @@ export function ChannelSwitcher() {
   const activeChannel = channels.find((channel) => pathname.startsWith(`/${channel}`));
 
   return (
-    <nav aria-label="로그 전환" className="border-ink/15 flex rounded-full border bg-white/35 p-1">
+    <nav
+      aria-label="로그 전환"
+      className="border-ink/15 bg-surface/60 flex rounded-full border p-1"
+    >
       {channels.map((channel) => {
         const isActive = activeChannel === channel;
 

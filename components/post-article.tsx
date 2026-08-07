@@ -21,7 +21,7 @@ export function PostArticle({ post }: { post: Post }) {
         <div className="mb-5 flex flex-wrap items-center gap-2">
           {post.tags.map((tag) => (
             <Link
-              className="bg-acid rounded-full px-3 py-1 font-mono text-[0.68rem] font-bold uppercase"
+              className="bg-acid text-acid-ink rounded-full px-3 py-1 font-mono text-[0.68rem] font-bold uppercase"
               href={`/${post.channel}/tags/${tag}`}
               key={tag}
             >
