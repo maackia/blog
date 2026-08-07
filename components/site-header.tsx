@@ -1,10 +1,6 @@
+import { Info } from "lucide-react";
 import Link from "next/link";
-
-const navigation = [
-  { href: "/", label: "Notes" },
-  { href: "/tags/kubernetes", label: "Kubernetes" },
-  { href: "/about", label: "About" },
-] as const;
+import { ChannelSwitcher } from "@/components/channel-switcher";
 
 export function SiteHeader() {
   return (
@@ -17,23 +13,20 @@ export function SiteHeader() {
           <span className="bg-acid text-ink grid size-8 place-items-center rounded-full transition-transform group-hover:-rotate-6">
             M
           </span>
-          MAACKIA.LOG
+          <span className="hidden sm:inline">MAACKIA.LOG</span>
         </Link>
 
-        <nav aria-label="주요 메뉴">
-          <ul className="flex items-center gap-1 text-sm font-semibold md:gap-3">
-            {navigation.map((item) => (
-              <li key={item.href}>
-                <Link
-                  className="hover:bg-ink hover:text-paper rounded-full px-3 py-2 transition-colors md:px-4"
-                  href={item.href}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="flex items-center gap-2 md:gap-4">
+          <ChannelSwitcher />
+          <Link
+            aria-label="블로그 소개"
+            className="hover:bg-ink hover:text-paper grid size-9 place-items-center rounded-full text-sm font-semibold transition-colors md:flex md:w-auto md:px-4"
+            href="/about"
+          >
+            <Info aria-hidden="true" className="md:hidden" size={17} />
+            <span className="hidden md:inline">소개</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

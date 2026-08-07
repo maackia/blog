@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
+import type { Channel } from "@/lib/channels";
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
 
@@ -9,8 +10,10 @@ const frontmatterSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   publishedAt: z.coerce.date(),
+  channel: z.enum(["life", "tech"]),
   updatedAt: z.coerce.date().optional(),
   tags: z.array(z.string().min(1)).default([]),
+  coverImage: z.string().startsWith("/").optional(),
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),
 });
@@ -21,7 +24,9 @@ export type Post = {
   description: string;
   publishedAt: string;
   updatedAt?: string;
+  channel: Channel;
   tags: string[];
+  coverImage?: string;
   featured: boolean;
   draft: boolean;
   content: string;
@@ -40,7 +45,9 @@ function parsePost(fileName: string): Post {
     description: frontmatter.description,
     publishedAt: frontmatter.publishedAt.toISOString(),
     updatedAt: frontmatter.updatedAt?.toISOString(),
+    channel: frontmatter.channel,
     tags: frontmatter.tags,
+    coverImage: frontmatter.coverImage,
     featured: frontmatter.featured,
     draft: frontmatter.draft,
     content,
@@ -64,7 +71,11 @@ export function getAllPosts(): Post[] {
     );
 }
 
-export function getPostBySlug(slug: string): Post | undefined {
+export function getPostsByChannel(channel: Channel): Post[] {
+  return getAllPosts().filter((post) => post.channel === channel);
+}
+
+export function getPostBySlug(slug: string, channel?: Channel): Post | undefined {
   if (!/^[a-z0-9-]+$/.test(slug)) {
     return undefined;
   }
@@ -74,15 +85,18 @@ export function getPostBySlug(slug: string): Post | undefined {
     return undefined;
   }
 
-  return parsePost(`${slug}.mdx`);
+  const post = parsePost(`${slug}.mdx`);
+  return channel && post.channel !== channel ? undefined : post;
 }
 
-export function getAllTags(): string[] {
-  return [...new Set(getAllPosts().flatMap((post) => post.tags))].sort();
+export function getAllTags(channel?: Channel): string[] {
+  const posts = channel ? getPostsByChannel(channel) : getAllPosts();
+  return [...new Set(posts.flatMap((post) => post.tags))].sort();
 }
 
-export function getPostsByTag(tag: string): Post[] {
-  return getAllPosts().filter((post) => post.tags.includes(tag));
+export function getPostsByTag(tag: string, channel?: Channel): Post[] {
+  const posts = channel ? getPostsByChannel(channel) : getAllPosts();
+  return posts.filter((post) => post.tags.includes(tag));
 }
 
 export function formatDate(value: string): string {

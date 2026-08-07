@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/posts";
@@ -14,6 +15,15 @@ export function PostCard({ post, index }: PostCardProps) {
       <span className="text-muted font-mono text-xs">#{String(index + 1).padStart(2, "0")}</span>
 
       <div>
+        {post.coverImage ? (
+          <Image
+            alt=""
+            className="border-ink/10 mb-6 aspect-[16/9] w-full rounded-2xl border object-cover"
+            height={675}
+            src={post.coverImage}
+            width={1200}
+          />
+        ) : null}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <time className="text-muted text-xs font-semibold uppercase tracking-[0.12em]">
             {formatDate(post.publishedAt)}
@@ -21,7 +31,7 @@ export function PostCard({ post, index }: PostCardProps) {
           {post.tags.map((tag) => (
             <Link
               className="bg-ink/6 hover:bg-acid rounded-full px-2.5 py-1 font-mono text-[0.68rem] font-semibold uppercase transition-colors"
-              href={`/tags/${tag}`}
+              href={`/${post.channel}/tags/${tag}`}
               key={tag}
             >
               {tag}
@@ -29,7 +39,10 @@ export function PostCard({ post, index }: PostCardProps) {
           ))}
         </div>
         <h3 className="font-display max-w-3xl text-2xl font-bold tracking-[-0.04em] md:text-3xl">
-          <Link className="underline-offset-4 hover:underline" href={`/posts/${post.slug}`}>
+          <Link
+            className="underline-offset-4 hover:underline"
+            href={`/${post.channel}/posts/${post.slug}`}
+          >
             {post.title}
           </Link>
         </h3>
@@ -39,7 +52,7 @@ export function PostCard({ post, index }: PostCardProps) {
       <Link
         aria-label={`${post.title} 읽기`}
         className="border-ink/15 hover:bg-acid grid size-11 place-items-center rounded-full border transition-all group-hover:translate-x-1 group-hover:-translate-y-1"
-        href={`/posts/${post.slug}`}
+        href={`/${post.channel}/posts/${post.slug}`}
       >
         <ArrowUpRight aria-hidden="true" size={19} />
       </Link>
