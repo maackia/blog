@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   const { tag } = await params;
   return {
     title: `#${tag}`,
-    description: `${tag} 주제로 작성한 전체 기록입니다.`,
+    description: `${tag} 기록 모음.`,
   };
 }
 
@@ -33,7 +33,7 @@ export default async function TagPage({ params }: TagPageProps) {
       <h1 className="font-display mt-3 text-5xl font-black tracking-[-0.06em] md:text-7xl">
         #{tag}
       </h1>
-      <p className="text-muted mt-5">이 주제로 작성한 기록 {posts.length}개</p>
+      <p className="text-muted mt-5">#{tag} 기록 {posts.length}개</p>
 
       <div className="mt-14">
         {posts.map((post, index) => (

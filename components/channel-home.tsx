@@ -16,35 +16,35 @@ import { getPostsByChannel } from "@/lib/posts";
 const content = {
   life: {
     eyebrow: "LIFE LOG / SEOUL",
-    headline: ["좋아하는 것과", "살아가는 장면을", "기록합니다."],
+    headline: ["좋아하는 것,", "살아가는 장면,", "오래 남길 기록."],
     description:
-      "특별하지 않아도 오래 기억하고 싶은 하루, 취미에 빠져든 시간, 카메라에 남은 장면들을 천천히 모읍니다.",
+      "별일 없던 하루, 취미에 푹 빠진 시간, 카메라에 남은 장면을 천천히 모은다.",
     interests: [
       { icon: BookOpen, label: "Daily life" },
       { icon: Gamepad2, label: "Hobbies" },
       { icon: Camera, label: "Photography" },
     ],
     pillars: [
-      ["01", "일상", "별일 없던 하루에서도 기억하고 싶은 순간을 남깁니다."],
-      ["02", "취미", "좋아해서 오래 들여다본 것과 새롭게 빠져든 것을 기록합니다."],
-      ["03", "사진", "말보다 먼저 마음에 남은 장면을 사진과 함께 모읍니다."],
+      ["01", "일상", "별일 없던 하루에서 오래 기억하고 싶은 순간."],
+      ["02", "취미", "오래 좋아한 것과 새롭게 빠져든 것."],
+      ["03", "사진", "말보다 먼저 마음에 남은 장면."],
     ],
     latest: "최근 생활 기록",
   },
   tech: {
     eyebrow: "TECH LOG / BUILDING IN PUBLIC",
-    headline: ["만들고,", "배포하고,", "관찰합니다."],
+    headline: ["만들고,", "배포하고,", "관찰한다."],
     description:
-      "코드가 컨테이너가 되고 클러스터 위에서 지표와 로그를 남기기까지, 직접 운영하며 배운 것을 기록합니다.",
+      "코드에서 컨테이너로, 다시 클러스터와 지표로. 직접 만들고 운영하며 부딪힌 기록.",
     interests: [
       { icon: Braces, label: "React & Web" },
       { icon: Container, label: "Kubernetes" },
       { icon: Activity, label: "Observability" },
     ],
     pillars: [
-      ["01", "Build", "작은 기능도 배포 가능한 단위로 만듭니다."],
-      ["02", "Run", "컨테이너와 Kubernetes에서 직접 운영합니다."],
-      ["03", "Observe", "메트릭·로그·트레이스로 상태를 이해합니다."],
+      ["01", "Build", "작게 만들고 배포 가능한 상태로 끝낸다."],
+      ["02", "Run", "컨테이너와 Kubernetes 위에서 직접 돌린다."],
+      ["03", "Observe", "메트릭·로그·트레이스로 무슨 일이 일어났는지 확인한다."],
     ],
     latest: "최근 기술 기록",
   },

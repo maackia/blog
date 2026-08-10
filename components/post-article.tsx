@@ -36,7 +36,7 @@ export function PostArticle({ post }: { post: Post }) {
         <div className="text-muted mt-8 flex items-center gap-4 font-mono text-xs">
           <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
           <span aria-hidden="true">·</span>
-          <span>{post.tags.length} topics</span>
+          <span>태그 {post.tags.length}개</span>
         </div>
       </header>
 

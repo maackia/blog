@@ -4,23 +4,23 @@ const principles = [
   {
     icon: Camera,
     title: "LIFE LOG",
-    description: "금방 지나갈 하루와 오래 좋아하는 취미, 다시 보고 싶은 사진을 남깁니다.",
+    description: "금방 지나갈 하루, 오래 좋아한 취미, 다시 보고 싶은 사진.",
   },
   {
     icon: TerminalSquare,
     title: "TECH LOG",
-    description: "직접 만들고 배포하고 운영하면서 선택하고 실패하고 배운 과정을 기록합니다.",
+    description: "직접 만들고 배포하고 운영하며 남긴 선택과 실패.",
   },
   {
     icon: Layers3,
     title: "ONE ARCHIVE",
-    description: "서로 다른 두 관심사를 나누어 보여 주되 하나의 정체성과 기록으로 쌓습니다.",
+    description: "서로 다른 두 관심사, 결국 한 사람의 기록.",
   },
 ] as const;
 
 export const metadata = {
   title: "소개",
-  description: "MAACKIA.LOG의 LIFE LOG와 TECH LOG를 소개합니다.",
+  description: "일상과 기술, 한 사람에게서 나온 두 개의 로그.",
 };
 
 export default function AboutPage() {
@@ -30,13 +30,13 @@ export default function AboutPage() {
         ABOUT THIS JOURNAL
       </p>
       <h1 className="font-display mt-4 max-w-4xl text-5xl font-black leading-[1] tracking-[-0.06em] md:text-7xl">
-        만드는 나와
+        만드는 나도,
         <br />
-        살아가는 나를 함께 남깁니다.
+        살아가는 나도.
       </h1>
       <p className="text-muted mt-8 max-w-2xl text-lg leading-8">
-        MAACKIA.LOG는 개발과 운영을 기록하는 TECH LOG, 일상과 취미와 사진을 남기는
-        LIFE LOG로 이루어진 하나의 개인 블로그입니다.
+        TECH LOG에는 만들고 운영하며 배운 것을, LIFE LOG에는 일상과 취미와 사진을
+        남긴다. 서로 다른 두 로그지만 모두 같은 사람의 기록이다.
       </p>
 
       <div className="mt-16 grid gap-4 md:grid-cols-3">
