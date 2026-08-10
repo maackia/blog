@@ -8,7 +8,7 @@ const entries = [
     number: "01",
     label: "LIFE LOG",
     title: "살아가는 장면",
-    description: "일상과 취미, 사진을 내 속도로 남깁니다.",
+    description: "일상과 취미, 오래 보고 싶은 사진들.",
     icon: Camera,
     count: getPostsByChannel("life").length,
   },
@@ -17,7 +17,7 @@ const entries = [
     number: "02",
     label: "TECH LOG",
     title: "만들고 운영한 것",
-    description: "개발과 배포, 관측 과정에서 배운 것을 기록합니다.",
+    description: "개발부터 배포와 관측까지, 직접 부딪힌 기록.",
     icon: TerminalSquare,
     count: getPostsByChannel("tech").length,
   },
@@ -33,13 +33,13 @@ export default function HomePage() {
         기술과 일상,
         <br />
         <span className="relative inline-block">
-          둘 다 나의 기록입니다.
+          둘 다 내 기록.
           <span className="bg-acid absolute bottom-[0.08em] left-0 -z-10 h-[0.24em] w-full -rotate-1" />
         </span>
       </h1>
       <p className="text-muted mt-8 max-w-2xl text-lg leading-8 md:text-xl">
-        같은 사람이 서로 다른 시선으로 남기는 두 개의 로그입니다. 지금 읽고 싶은 방향을
-        선택하세요.
+        코드를 만지는 나도, 사진을 찍고 취미에 빠지는 나도. 두 로그 사이를 오가며 남긴
+        기록.
       </p>
 
       <div className="mt-14 grid gap-4 md:grid-cols-2">
