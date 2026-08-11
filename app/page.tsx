@@ -33,7 +33,7 @@ export default function HomePage() {
         기술과 일상,
         <br />
         <span className="relative inline-block">
-          둘 다 내 기록.
+          TECH & LIFE.
           <span className="bg-acid absolute bottom-[0.08em] left-0 -z-10 h-[0.24em] w-full -rotate-1" />
         </span>
       </h1>
