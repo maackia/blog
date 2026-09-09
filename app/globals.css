@@ -2,13 +2,13 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-paper: #f4f0e8;
+  --color-paper: #ffffff;
   --color-ink: #171914;
   --color-muted: #686c61;
   --color-acid: #c7ff45;
   --color-acid-ink: #171914;
   --color-orange: #ff7043;
-  --color-surface: #ffffff;
+  --color-surface: #f7f7f8;
   --color-panel: #171914;
   --color-panel-ink: #f4f0e8;
   --font-display: "Arial Narrow", "Pretendard", "Noto Sans KR", sans-serif;
@@ -17,16 +17,16 @@
 }
 
 :root {
-  --color-paper: #f4f0e8;
+  --color-paper: #ffffff;
   --color-ink: #171914;
   --color-muted: #686c61;
   --color-acid: #c7ff45;
   --color-acid-ink: #171914;
   --color-orange: #ff7043;
-  --color-surface: #ffffff;
+  --color-surface: #f7f7f8;
   --color-panel: #171914;
   --color-panel-ink: #f4f0e8;
-  --page-glow: rgb(199 255 69 / 18%);
+  --page-glow: transparent;
   --grid-line: rgb(23 25 20 / 7%);
   --inline-code: rgb(23 25 20 / 8%);
   --image-border: rgb(23 25 20 / 10%);
