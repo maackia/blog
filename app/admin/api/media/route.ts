@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   if (!isAdminNetwork(request) || !await authenticated(request)) return new Response(null, { status: 401 });
   if (!sameOrigin(request) || !verifyCsrf(request)) return new Response(null, { status: 403 });
   // Binary body instead of multipart: enforce the limit during streaming, even without Content-Length.
-  if (Number(request.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES) return Response.json({ error: "사진은 장당 10MB 이하로 올려 주세요." }, { status: 413 });
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES) return Response.json({ error: "사진은 장당 50MB 이하로 올려 주세요." }, { status: 413 });
   const reader = request.body?.getReader();
   if (!reader) return new Response(null, { status: 400 });
   const chunks: Buffer[] = [];
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       const { done, value } = await reader.read();
       if (done) break;
       length += value.byteLength;
-      if (length > MAX_UPLOAD_BYTES) { await reader.cancel(); throw new MediaError("사진은 장당 10MB 이하로 올려 주세요.", 413); }
+      if (length > MAX_UPLOAD_BYTES) { await reader.cancel(); throw new MediaError("사진은 장당 50MB 이하로 올려 주세요.", 413); }
       chunks.push(Buffer.from(value));
     }
     const filename = decodeURIComponent(request.headers.get("x-file-name") ?? "photo");
