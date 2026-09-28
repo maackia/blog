@@ -1,5 +1,18 @@
 .admin-topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .admin-login-theme { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+/* Icon-only buttons must not inherit text-button padding. */
+.admin-topbar-actions button[aria-pressed], .admin-login-theme button[aria-pressed] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--admin-line);
+}
+.admin-topbar-actions button[aria-pressed] svg, .admin-login-theme button[aria-pressed] svg { display: block; margin: 0; }
 [data-theme="dark"] .admin-app {
   --admin-bg: #151922;
   --admin-panel: #1e2430;

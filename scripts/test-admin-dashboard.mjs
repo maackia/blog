@@ -45,6 +45,37 @@ try {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.getByRole("button", { name: "다크 모드로 전환" }).click();
   check("dashboard theme toggle in both directions");
+  for (const width of [1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 1000 });
+    for (const theme of ["light", "dark"]) {
+      await page.evaluate((value) => { document.documentElement.dataset.theme = value; }, theme);
+      const centered = await page.locator(".admin-topbar-actions button[aria-pressed]").evaluate((button) => {
+        const b = button.getBoundingClientRect();
+        const i = button.querySelector("svg").getBoundingClientRect();
+        return Math.abs((b.x + b.width / 2) - (i.x + i.width / 2)) < 1 && Math.abs((b.y + b.height / 2) - (i.y + i.height / 2)) < 1;
+      });
+      expect(centered).toBe(true);
+      await page.getByRole("button", { name: "글 관리", exact: true }).click();
+      expect(await page.locator("table").evaluate((table) => {
+        const header = table.querySelector("th:last-child").getBoundingClientRect();
+        const buttons = [...table.querySelectorAll(".admin-row-actions")];
+        return buttons.every((row) => Math.abs(row.getBoundingClientRect().left - (header.left + 16)) < 1);
+      })).toBe(true);
+      expect(await page.locator("table").evaluate((table) => [...table.querySelectorAll("tbody tr")].every((row) => [1,2].every((index) => {
+        const cell = row.children[index].getBoundingClientRect();
+        const badge = row.children[index].firstElementChild.getBoundingClientRect();
+        return Math.abs(cell.x + cell.width / 2 - badge.x - badge.width / 2) < 1;
+      })))).toBe(true);
+      await page.screenshot({ path: `/tmp/blog-admin-posts-${width}-${theme}.png`, fullPage: true });
+      await page.getByRole("button", { name: "설정", exact: true }).click();
+      expect(await page.locator(".admin-help p").first().evaluate((el) => getComputedStyle(el).maxWidth)).toBe("none");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.screenshot({ path: `/tmp/blog-admin-settings-${width}-${theme}.png`, fullPage: true });
+    }
+  }
+  await page.getByRole("button", { name: "대시보드", exact: true }).click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  check("PC alignment at 1280/1440/1920 in both themes: centered icons and badges, aligned actions, settings layout");
   await page.screenshot({ path: "/tmp/blog-admin-dashboard.png", fullPage: true });
   await page.getByRole("button", { name: "+ 새 글 작성", exact: true }).click();
   await page.getByLabel("제목", { exact: true }).fill("브라우저 통합 검증");
