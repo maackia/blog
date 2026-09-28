@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { RestrictedMdx } from "@/lib/render-mdx";
+import { assertSafeMdx } from "@/lib/safe-mdx";
 import type { PostInput, StoredPost } from "@/lib/store";
 
 const blank: PostInput = {
@@ -19,6 +21,12 @@ export function AdminDashboard({ initialLoggedIn, initialCsrf }: { initialLogged
   const [tagText, setTagText] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState(false);
+  let previewError = "";
+  if (preview && form.content) {
+    try { assertSafeMdx(form.content); }
+    catch (error) { previewError = String(error); }
+  }
 
   const refresh = useCallback(async () => {
     const response = await fetch("/admin/api/posts", { cache: "no-store" });
@@ -114,9 +122,15 @@ export function AdminDashboard({ initialLoggedIn, initialCsrf }: { initialLogged
         </div>
         <label className="block">태그 (쉼표로 구분)<input className="border-ink/30 bg-paper mt-1 w-full rounded border p-3" value={tagText} onChange={(e) => setTagText(e.target.value)} /></label>
         <label className="block">대표 이미지 경로 (선택)<input className="border-ink/30 bg-paper mt-1 w-full rounded border p-3" value={form.coverImage ?? ""} onChange={(e) => setForm({ ...form, coverImage: e.target.value || undefined })} placeholder="/images/posts/example/cover.jpg" /></label>
-        <label className="block">MDX 본문 (Markdown + &lt;Callout title=&quot;팁&quot;&gt;...&lt;/Callout&gt;)
-          <textarea className="border-ink/30 bg-paper mt-2 min-h-96 w-full rounded border p-4 font-mono text-sm" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} required />
-        </label>
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span>MDX 본문 (Markdown + &lt;Callout title=&quot;팁&quot;&gt;텍스트&lt;/Callout&gt;)</span>
+            <button className="underline" type="button" onClick={() => setPreview(!preview)}>{preview ? "편집" : "미리보기"}</button>
+          </div>
+          {preview ? <div className="prose prose-lg prose-blog border-ink/30 min-h-96 max-w-none rounded border p-4">
+            {previewError ? <p role="alert">{previewError}</p> : <RestrictedMdx source={form.content || "미리보기할 내용이 없습니다."} />}
+          </div> : <textarea aria-label="MDX 본문" className="border-ink/30 bg-paper min-h-96 w-full rounded border p-4 font-mono text-sm" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />}
+        </div>
         <div className="flex flex-wrap items-center gap-4">
           <button className="bg-ink text-paper rounded px-5 py-3" disabled={busy}>저장</button>
           {selected ? <button type="button" className="text-red-700 underline" onClick={remove} disabled={busy}>글 삭제</button> : null}
