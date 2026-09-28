@@ -1,0 +1,25 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { randomBytes, scryptSync } from "node:crypto";
+import { afterAll, expect, it } from "vitest";
+import { closeDatabase } from "./db";
+import { changePassword, credentials, passwordMatches } from "./credentials";
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), "blog-auth-"));
+process.env.BLOG_DB_PATH = path.join(dir, "test.sqlite");
+const salt = randomBytes(16);
+process.env.BLOG_ADMIN_PASSWORD_HASH = `scrypt:${salt.toString("hex")}:${scryptSync("old-password-123",salt,64).toString("hex")}`;
+afterAll(() => { closeDatabase(); fs.rmSync(dir, { recursive: true, force: true }); });
+it("validates current password, persists new hash, rotates session version", () => {
+  expect(passwordMatches("old-password-123")).toBe(true);
+  expect(() => changePassword("wrong", "new-password-123")).toThrow();
+  expect(() => changePassword("old-password-123", "short")).toThrow();
+  changePassword("old-password-123", "new-password-123");
+  expect(passwordMatches("old-password-123")).toBe(false);
+  expect(passwordMatches("new-password-123")).toBe(true);
+  const version = credentials()?.version;
+  closeDatabase();
+  expect(passwordMatches("new-password-123")).toBe(true);
+  changePassword("new-password-123", "another-password-123");
+  expect(credentials()?.version).not.toBe(version);
+});

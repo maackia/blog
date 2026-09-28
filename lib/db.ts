@@ -28,6 +28,11 @@ export function openDatabase(file = process.env.BLOG_DB_PATH ?? path.join(proces
     );
     CREATE INDEX IF NOT EXISTS posts_status_channel_date ON posts(status, channel, published_at DESC);
   `);
+  // Additive migration: retain every existing post and publication timestamp.
+  if (!(db.pragma("table_info(posts)") as { name: string }[]).some((column) => column.name === "deleted_at")) {
+    db.exec("ALTER TABLE posts ADD COLUMN deleted_at TEXT");
+  }
+  db.exec("CREATE TABLE IF NOT EXISTS admin_credentials (id INTEGER PRIMARY KEY CHECK(id=1), password_hash TEXT NOT NULL, version TEXT NOT NULL)");
   connection = db;
   return db;
 }
