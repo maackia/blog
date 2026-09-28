@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { openDatabase } from "./db";
 
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 export const MEDIA_QUOTA_BYTES = 1024 * 1024 * 1024;
 export type Media = { id: string; name: string; width: number; height: number; bytes: number; original_bytes: number; created_at: string };
 export type MediaUse = { slug: string; title: string; status: string; deleted_at: string | null };
@@ -37,7 +37,7 @@ export function validateMediaReferences(text: string) {
 
 let processing = false;
 export async function uploadMedia(input: Buffer, filename: string): Promise<Media> {
-  if (!input.length || input.length > MAX_UPLOAD_BYTES) throw new MediaError("사진은 장당 10MB 이하로 올려 주세요.", 413);
+  if (!input.length || input.length > MAX_UPLOAD_BYTES) throw new MediaError("사진은 장당 50MB 이하로 올려 주세요.", 413);
   // One decode at a time avoids overwhelming the Pi with simultaneous uploads.
   if (processing) throw new MediaError("다른 사진을 처리 중입니다. 잠시 후 다시 시도해 주세요.", 429);
   processing = true;

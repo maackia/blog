@@ -25,6 +25,15 @@ it("optimizes, strips metadata, safely names and persists an image", async () =>
   removeMedia(item.id);
   expect(fs.existsSync(path.join(dir, "media", `${item.id}.webp`))).toBe(false);
 });
+it("accepts a 50MiB JPEG and persists only its optimized WebP", async () => {
+  const jpeg = await photo();
+  const upload = Buffer.concat([jpeg, Buffer.alloc(MAX_UPLOAD_BYTES - jpeg.length)]);
+  const item = await uploadMedia(upload, "large-camera.jpg");
+  expect(item.original_bytes).toBe(50 * 1024 * 1024);
+  expect(item.bytes).toBeLessThan(item.original_bytes);
+  expect(fs.readdirSync(path.join(dir, "media"))).toEqual([`${item.id}.webp`]);
+  removeMedia(item.id);
+});
 it("rejects corrupt, disguised SVG, oversized uploads and exceeded quota", async () => {
   await expect(uploadMedia(Buffer.from("not an image"), "x.jpg")).rejects.toThrow();
   await expect(uploadMedia(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>'), "x.png")).rejects.toThrow();

@@ -1,5 +1,4 @@
 import { ArrowLeft } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/posts";
@@ -38,17 +37,6 @@ export function PostArticle({ post }: { post: Post }) {
           <span>태그 {post.tags.length}개</span>
         </div>
       </header>
-
-      {post.coverImage ? (
-        <Image
-          alt={`${post.title} 대표 사진`}
-          className="border-ink/10 mt-10 aspect-[16/9] w-full rounded-[2rem] border object-cover"
-          height={675}
-          priority
-          src={post.coverImage}
-          width={1200}
-        />
-      ) : null}
 
       <div className="prose prose-lg prose-blog mt-12 max-w-none">
         <RestrictedMdx source={post.content} />

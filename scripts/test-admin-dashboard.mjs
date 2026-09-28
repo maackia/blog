@@ -79,7 +79,9 @@ try {
   check("PC alignment at 1280/1440/1920 in both themes: centered icons and badges, aligned actions, settings layout");
   await page.screenshot({ path: "/tmp/blog-admin-dashboard.png", fullPage: true });
   await page.getByRole("button", { name: "미디어", exact: true }).click();
-  const image = await sharp({ create: { width: 2500, height: 1250, channels: 3, background: "#4169e1" } }).png().withMetadata().toBuffer();
+  const encoded = await sharp({ create: { width: 2500, height: 1250, channels: 3, background: "#4169e1" } }).png().withMetadata().toBuffer();
+  // Exercise the browser and streaming API above the old 10MiB cap.
+  const image = Buffer.concat([encoded, Buffer.alloc(11 * 1024 * 1024 - encoded.length)]);
   await page.getByLabel("사진 파일").setInputFiles({ name: "test-photo.png", mimeType: "image/png", buffer: image });
   await expect(page.getByText(/1장 업로드 완료/)).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".media-item")).toHaveCount(1);
@@ -95,7 +97,7 @@ try {
   expect((await page.request.post(`${origin}/admin/api/media`, { headers: mediaHeaders, data: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>') })).status()).toBe(400);
   expect((await page.request.post(`${origin}/admin/api/media`, { data: image })).status()).toBe(403);
   expect((await fetch(`${origin}/admin/api/media`)).status).toBe(401);
-  expect((await page.request.post(`${origin}/admin/api/media`, { headers: mediaHeaders, data: Buffer.alloc(10 * 1024 * 1024 + 1) })).status()).toBe(413);
+  expect((await page.request.post(`${origin}/admin/api/media`, { headers: mediaHeaders, data: Buffer.alloc(50 * 1024 * 1024 + 1) })).status()).toBe(413);
   const dropped = await page.evaluateHandle((base64) => { const transfer = new DataTransfer(); transfer.items.add(new File([Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))], "dropped.png", { type: "image/png" })); return transfer; }, image.toString("base64"));
   await page.locator(".media-dropzone").dispatchEvent("drop", { dataTransfer: dropped });
   await expect(page.locator(".media-item")).toHaveCount(2, { timeout: 15000 });
@@ -151,7 +153,14 @@ try {
   const publicArticle = await page.request.get(`${origin}/life/posts/dashboard-browser-check`);
   expect(await publicArticle.text()).toContain(photo.url);
   expect((await page.request.get(`${origin}/_next/image?url=${encodeURIComponent(photo.url)}&w=640&q=75`)).status()).toBe(200);
-  check("public body and optimized cover image are served");
+  const publicPage = await context.newPage();
+  await publicPage.goto(`${origin}/life/posts/dashboard-browser-check`);
+  await expect(publicPage.locator("article img")).toHaveCount(1);
+  await expect(publicPage.locator("article img")).toHaveAttribute("src", photo.url);
+  await publicPage.goto(`${origin}/life`);
+  await expect(publicPage.locator("article").filter({ hasText: "브라우저 통합 검증" }).locator("img")).toHaveCount(1);
+  await publicPage.close();
+  check("cover appears in listing only; article renders the inserted body image exactly once");
   await expect(page.getByRole("button", { name: "저장", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "글 관리", exact: true }).click();
   await page.getByLabel("글 검색").fill("브라우저 통합");

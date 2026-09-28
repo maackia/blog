@@ -40,7 +40,7 @@ export function MediaLibrary({ csrf, onSelect, onBusyChange }: {
       for (let index = 0; index < files.length; index++) {
         const file = files[index];
         setMessage(`${index + 1}/${files.length} 업로드 중 · ${file.name}`);
-        if (file.size > 10 * 1024 * 1024) { failures.push(`${file.name}: 10MB 초과`); continue; }
+        if (file.size > 50 * 1024 * 1024) { failures.push(`${file.name}: 50MB 초과`); continue; }
         try {
           const response = await fetch("/admin/api/media", { method: "POST", headers: { "Content-Type": "application/octet-stream", "x-csrf-token": csrf, "x-file-name": encodeURIComponent(file.name) }, body: file });
           const result = await response.json();
@@ -74,7 +74,7 @@ export function MediaLibrary({ csrf, onSelect, onBusyChange }: {
       <p>사진을 여기에 끌어 놓거나 파일을 선택하세요.</p>
       <button className="admin-primary" type="button" disabled={busy} onClick={() => input.current?.click()}>{busy ? "사진 처리 중…" : "사진 업로드"}</button>
       <input ref={input} className="media-file-input" aria-label="사진 파일" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => void upload(Array.from(event.target.files ?? []))} disabled={busy} />
-      <small>JPEG · PNG · 정지 WebP / 장당 10MB · 4천만 화소 이하 / 한 번에 20장</small>
+      <small>JPEG · PNG · 정지 WebP / 장당 50MB · 4천만 화소 이하 / 한 번에 20장</small>
       <small>긴 변 최대 2048px의 WebP로 변환하며 위치·촬영 정보를 제거합니다. 원본은 따로 보관하세요.</small>
     </div>
     {message && <p role="status" className="admin-notice media-message">{message}</p>}
