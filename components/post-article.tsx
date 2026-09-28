@@ -1,20 +1,9 @@
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/posts";
-import { assertSafeMdx } from "@/lib/safe-mdx";
-
-export function Callout({ title, children }: { title?: string; children: React.ReactNode }) {
-  return (
-    <aside className="border-orange/40 bg-surface my-6 rounded-2xl border p-5">
-      {title ? <strong className="mb-2 block">{title}</strong> : null}
-      <div>{children}</div>
-    </aside>
-  );
-}
+import { RestrictedMdx } from "@/lib/render-mdx";
 
 export function PostArticle({ post }: { post: Post }) {
   return (
@@ -62,11 +51,7 @@ export function PostArticle({ post }: { post: Post }) {
       ) : null}
 
       <div className="prose prose-lg prose-blog mt-12 max-w-none">
-        <MDXRemote
-          components={{ Callout }}
-          options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
-          source={assertSafeMdx(post.content)}
-        />
+        <RestrictedMdx source={post.content} />
       </div>
     </article>
   );
