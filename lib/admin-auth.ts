@@ -21,11 +21,6 @@ export function checkPassword(input: string) {
   return timingSafeEqual(calculated, Buffer.from(match[2], "hex"));
 }
 
-export function newPasswordHash(password: string) {
-  const salt = randomBytes(16);
-  return `scrypt:${salt.toString("hex")}:${scryptSync(password, salt, 64).toString("hex")}`;
-}
-
 export async function createSession() {
   return new SignJWT({ role: "admin" }).setProtectedHeader({ alg: "HS256" })
     .setIssuedAt().setExpirationTime(`${sessionAge}s`).sign(secret());
