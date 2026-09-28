@@ -1,17 +1,15 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostArticle } from "@/components/post-article";
 import { isChannel } from "@/lib/channels";
-import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import { getPostBySlug } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
 
 type ChannelPostPageProps = {
   params: Promise<{ channel: string; slug: string }>;
 };
-
-export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ channel: post.channel, slug: post.slug }));
-}
 
 export async function generateMetadata({ params }: ChannelPostPageProps): Promise<Metadata> {
   const { channel, slug } = await params;

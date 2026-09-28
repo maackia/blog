@@ -1,18 +1,14 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostCard } from "@/components/post-card";
-import { channelConfig, channels, isChannel } from "@/lib/channels";
-import { getAllTags, getPostsByTag } from "@/lib/posts";
+import { channelConfig, isChannel } from "@/lib/channels";
+import { getPostsByTag } from "@/lib/posts";
 
 type ChannelTagPageProps = {
   params: Promise<{ channel: string; tag: string }>;
 };
-
-export function generateStaticParams() {
-  return channels.flatMap((channel) =>
-    getAllTags(channel).map((tag) => ({ channel, tag })),
-  );
-}
 
 export async function generateMetadata({ params }: ChannelTagPageProps): Promise<Metadata> {
   const { channel, tag } = await params;

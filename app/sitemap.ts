@@ -3,6 +3,8 @@ import { channels } from "@/lib/channels";
 import { getAllPosts, getAllTags } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts().map((post) => ({
     url: `${siteConfig.url}/${post.channel}/posts/${post.slug}`,

@@ -1,15 +1,13 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostCard } from "@/components/post-card";
-import { getAllTags, getPostsByTag } from "@/lib/posts";
+import { getPostsByTag } from "@/lib/posts";
 
 type TagPageProps = {
   params: Promise<{ tag: string }>;
 };
-
-export function generateStaticParams() {
-  return getAllTags().map((tag) => ({ tag }));
-}
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
   const { tag } = await params;
