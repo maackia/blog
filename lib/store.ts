@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { openDatabase } from "./db";
 import { assertSafeMdx } from "./safe-mdx";
+import { validateMediaReferences } from "./media";
 import type { Channel } from "./channels";
 
 export const postInput = z.object({
@@ -54,6 +55,7 @@ export function findPost(slug: string, includeDrafts = false): StoredPost | unde
 export function savePost(value: PostInput, oldSlug?: string): StoredPost {
   const data = postInput.parse(value);
   assertSafeMdx(data.content);
+  validateMediaReferences(`${data.content}\n${data.coverImage ?? ""}`);
   const db = openDatabase();
   const previous = oldSlug ? findPost(oldSlug, true) : undefined;
   if (oldSlug && (!previous || previous.deletedAt)) throw new Error("POST_NOT_FOUND");

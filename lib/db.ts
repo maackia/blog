@@ -33,6 +33,10 @@ export function openDatabase(file = process.env.BLOG_DB_PATH ?? path.join(proces
     db.exec("ALTER TABLE posts ADD COLUMN deleted_at TEXT");
   }
   db.exec("CREATE TABLE IF NOT EXISTS admin_credentials (id INTEGER PRIMARY KEY CHECK(id=1), password_hash TEXT NOT NULL, version TEXT NOT NULL)");
+  db.exec(`CREATE TABLE IF NOT EXISTS media (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, width INTEGER NOT NULL, height INTEGER NOT NULL,
+    bytes INTEGER NOT NULL, original_bytes INTEGER NOT NULL, created_at TEXT NOT NULL
+  )`);
   connection = db;
   return db;
 }
