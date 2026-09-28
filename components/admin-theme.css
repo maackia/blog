@@ -1,0 +1,33 @@
+.admin-topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.admin-login-theme { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+[data-theme="dark"] .admin-app {
+  --admin-bg: #151922;
+  --admin-panel: #1e2430;
+  --admin-text: #e5eaf3;
+  --admin-muted: #a3afc2;
+  --admin-line: #354052;
+  --admin-accent: #a6b5ff;
+  color-scheme: dark;
+}
+[data-theme="dark"] .admin-app button:hover { background: #303a4e; }
+[data-theme="dark"] .admin-app .admin-primary { background: #526be3; color: #fff; }
+[data-theme="dark"] .admin-app .admin-primary:hover { background: #617bef; }
+[data-theme="dark"] .admin-sidebar nav button[aria-current="page"],
+[data-theme="dark"] .admin-notice { background: #293454; color: #d8e0ff; border-color: #516296; }
+[data-theme="dark"] .admin-badge { background: #343e50; color: #d3dcec; }
+[data-theme="dark"] .admin-badge.published { background: #203f32; color: #99dfb5; }
+[data-theme="dark"] .admin-danger { color: #ffa5b1; }
+[data-theme="dark"] .admin-preview {
+  --tw-prose-body: #d3dcec;
+  --tw-prose-headings: #e5eaf3;
+  --tw-prose-bold: #e5eaf3;
+  --tw-prose-links: #a6b5ff;
+  --tw-prose-counters: #a3afc2;
+  --tw-prose-bullets: #a3afc2;
+  --tw-prose-quotes: #e5eaf3;
+  --tw-prose-code: #e5eaf3;
+  --tw-prose-hr: #354052;
+  --tw-prose-quote-borders: #516296;
+  --tw-prose-th-borders: #516296;
+  --tw-prose-td-borders: #354052;
+}
