@@ -47,8 +47,10 @@ npm run dev
 운영 DB는 소스/빌드 산출물과 분리된 `/home/maackia/blog-data/blog.sqlite`에 두고
 `BLOG_DB_PATH`, `BLOG_TAILSCALE_IP`, `BLOG_SESSION_SECRET`, `BLOG_ADMIN_PASSWORD_HASH`를
 systemd의 비공개 EnvironmentFile에 설정합니다. 서비스는 Next.js standalone으로 실행합니다.
-관리자 페이지의 Host 검사만으로는 네트워크가 제한되지 않습니다. **포트 80의 `/admin` 접근은
-Tailscale 외의 인터페이스에서 방화벽으로 차단**해야 합니다. 현재 운영 주소와 비밀번호 정보는 서버 설정을 참고하세요.
+관리자 페이지의 Host 검사만으로는 네트워크가 제한되지 않습니다. 현재 라즈베리파이에서는
+서비스가 **Tailscale IP `100.117.215.92`에만 바인딩**되어 LAN에서 접근할 수 없습니다.
+서비스를 `0.0.0.0`에 다시 바인딩하거나 인터넷에 노출하려면 관리자 페이지를 별도 네트워크/프록시에서 제한해야 합니다.
+현재 운영 주소와 비밀번호 정보는 서버 설정을 참고하세요.
 
 SQLite DB는 WAL 모드입니다. 백업은 실행 중 파일을 그냥 복사하지 말고 SQLite의 `.backup` API로 만들거나
 서비스를 중지한 후 DB/WAL 파일을 함께 복사하세요. 업로드 이미지가 추가되면 이미지 디렉터리도 별도 백업해야 합니다.
