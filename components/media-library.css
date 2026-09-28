@@ -1,6 +1,6 @@
 .media-dropzone { border: 2px dashed var(--admin-line); border-radius: 12px; background: var(--admin-bg); padding: 24px; text-align: center; display: grid; justify-items: center; gap: 12px; }
 .media-dropzone.is-dragging { border-color: var(--admin-accent); }
-.admin-app input.media-file-input { display: none; }
+.admin-app .media-library input[type=file].media-file-input { display: none; }
 .media-policy { font-size: 12px; line-height: 1.8; margin: 16px 0; word-break: keep-all; }
 .media-message { margin-top: 16px; }
 .media-search { max-width: 420px; margin: 20px 0; }
