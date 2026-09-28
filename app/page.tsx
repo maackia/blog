@@ -2,6 +2,8 @@ import { ArrowUpRight, Camera, TerminalSquare } from "lucide-react";
 import Link from "next/link";
 import { getPostsByChannel } from "@/lib/posts";
 
+export const dynamic = "force-dynamic";
+
 const entries = [
   {
     href: "/life",
@@ -10,7 +12,6 @@ const entries = [
     title: "살아가는 장면",
     description: "일상과 취미, 오래 보고 싶은 사진들.",
     icon: Camera,
-    count: getPostsByChannel("life").length,
   },
   {
     href: "/tech",
@@ -19,7 +20,6 @@ const entries = [
     title: "만들고 운영한 것",
     description: "개발부터 배포와 관측까지, 직접 부딪힌 기록.",
     icon: TerminalSquare,
-    count: getPostsByChannel("tech").length,
   },
 ] as const;
 
@@ -43,7 +43,7 @@ export default function HomePage() {
       </p>
 
       <div className="mt-14 grid gap-4 md:grid-cols-2">
-        {entries.map(({ href, number, label, title, description, icon: Icon, count }) => (
+        {entries.map(({ href, number, label, title, description, icon: Icon }) => (
           <Link
             className="border-ink/15 bg-surface/60 group relative min-h-80 overflow-hidden rounded-[2rem] border p-7 transition-transform hover:-translate-y-1 md:p-9"
             href={href}
@@ -62,7 +62,7 @@ export default function HomePage() {
             </h2>
             <p className="text-muted mt-3 max-w-md leading-7">{description}</p>
             <p className="text-muted absolute bottom-8 right-8 font-mono text-[0.65rem]">
-              {String(count).padStart(2, "0")} ENTRIES
+              {String(getPostsByChannel(href.slice(1) as "life" | "tech").length).padStart(2, "0")} ENTRIES
             </p>
           </Link>
         ))}
