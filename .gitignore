@@ -20,6 +20,12 @@ coverage/
 playwright-report/
 test-results/
 
+# Server-side persistent data (never commit posts database or backups)
+data/
+*.sqlite
+*.sqlite-*
+*.db
+
 # Environment files and local secrets
 .env
 .env.*

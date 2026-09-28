@@ -1,74 +1,57 @@
 # MAACKIA.LOG
 
-기술과 일상을 서로 다른 두 개의 로그로 기록하는 개인 블로그입니다.
+LIFE LOG와 TECH LOG를 분리한 개인 블로그. Next.js 16, React 19, SQLite, 제한된 MDX로 실행됩니다.
 
-- **LIFE LOG**: 일상, 취미, 사진
-- **TECH LOG**: 개발, Kubernetes, 배포와 관측
+## 주소
 
-두 채널은 글 목록과 주소를 분리하지만 같은 디자인 시스템, 저장소와 배포 흐름을 사용합니다. Kubernetes, Prometheus, Grafana 같은 운영 환경은 별도 저장소인 [`container-platform-lab`](https://github.com/maackia/container-platform-lab)에서 관리합니다.
-
-## 페이지 구조
-
-| 경로 | 내용 |
+| 경로 | 기능 |
 | --- | --- |
-| `/` | LIFE LOG와 TECH LOG를 선택하는 입구 |
-| `/life` | 생활 기록 메인 |
-| `/tech` | 기술 기록 메인 |
-| `/<channel>/posts/<slug>` | 채널별 글 |
-| `/<channel>/tags/<tag>` | 채널별 태그 목록 |
-| `/about` | 블로그 소개 |
+| `/` | LIFE / TECH 채널 입구 |
+| `/life`, `/tech` | 채널별 글 목록 |
+| `/<channel>/posts/<slug>` | 발행된 글 |
+| `/<channel>/tags/<tag>` | 태그별 글 |
+| `/admin` | 관리자 글쓰기·미리보기·발행·삭제 |
+| `/health/live`, `/health/ready` | 상태 점검 |
 
-상단의 `LIFE LOG / TECH LOG` 스위치로 두 메인 페이지를 오갈 수 있습니다.
+## 관리자 글쓰기
 
-첫 방문에는 운영체제의 라이트/다크 설정을 따릅니다. 헤더의 테마 버튼으로 직접 전환하면 선택한 모드를 브라우저에 저장하고 다음 방문에도 유지합니다.
+`/admin`은 서버의 Tailscale IP에서만 이용합니다. 관리자는 비밀번호로 로그인합니다.
+글은 SQLite에 저장되고, 임시저장 상태의 글은 공개 목록·태그·사이트맵에서 보이지 않습니다.
+`/admin`에서 글 목록을 골라 편집하거나 `+ 새 글`을 누른 뒤 제목·slug·채널·본문·태그·상태를 설정하세요.
+`미리보기`는 실제 게시 페이지와 동일한 렌더러를 사용합니다.
 
-## 글 작성
+본문은 Markdown(GFM 표·코드 블록 지원)과 **단순 텍스트** `<Callout title="팁">내용</Callout>`만 허용합니다.
+`import`, `export`, JavaScript 표현식, 기타 JSX·HTML은 허용하지 않으며 실행하지 않습니다.
+이미지는 `public/images/posts/<slug>/`에 수동으로 놓고 `![설명](/images/posts/<slug>/사진.jpg)`처럼 참조합니다.
+관리자 화면에서 이미지 업로드는 아직 제공하지 않습니다.
 
-글은 `content/posts/*.mdx`에 저장합니다. `channel`에는 `life` 또는 `tech`를 지정합니다.
-
-```yaml
----
-title: "글 제목"
-description: "글 설명"
-publishedAt: "2026-08-07"
-channel: "life"
-coverImage: "/images/posts/my-day/cover.jpg"
-tags:
-  - daily
-  - photo
-featured: false
-draft: false
----
-```
-
-사진은 `public/images/posts/<글-slug>/` 아래에 두고 Markdown 이미지 또는 `coverImage`로 참조합니다.
-
-```md
-![사진 설명](/images/posts/my-day/photo-01.jpg)
-```
-
-`draft: true`인 글은 목록과 정적 경로에서 제외됩니다.
-
-## 로컬 실행
+## 로컬 개발
 
 Node.js 24 이상이 필요합니다.
 
 ```bash
-npm install
+npm ci
+# 테스트용 DB 파일. 운영 DB 파일은 Git에서 제외됩니다.
+BLOG_DB_PATH="$PWD/data/blog.sqlite" npx tsx scripts/import-mdx.ts
 npm run dev
 ```
 
-기본 주소는 `http://localhost:3000`입니다.
+기존 `content/posts/*.mdx` 네 개의 이관 명령은 같은 slug를 건너뛰므로 재실행해도 중복되지 않습니다.
+이관 후 글을 DB에서 수정한 경우 원본 파일은 갱신되지 않으므로 **이관 명령을 재실행해도 DB 수정 내용은 덮어쓰지 않습니다.**
 
-## 기술 구성
+관리자 설정 예시는 `.env.example`을 참고하세요. 비밀번호 해시는 `npx tsx scripts/generate-admin-password.ts`로 생성하며,
+`BLOG_SESSION_SECRET`은 `openssl rand -hex 32`처럼 생성합니다. 해시와 비밀값은 절대 Git에 올리지 않습니다.
 
-- Next.js 16 App Router / React 19
-- TypeScript 6
-- Tailwind CSS 4
-- MDX 콘텐츠
-- Vitest / ESLint
-- Node.js 24 standalone 컨테이너
-- GitHub Actions / GitHub Container Registry
+## 라즈베리파이 운영
+
+운영 DB는 소스/빌드 산출물과 분리된 `/home/maackia/blog-data/blog.sqlite`에 두고
+`BLOG_DB_PATH`, `BLOG_TAILSCALE_IP`, `BLOG_SESSION_SECRET`, `BLOG_ADMIN_PASSWORD_HASH`를
+systemd의 비공개 EnvironmentFile에 설정합니다. 서비스는 Next.js standalone으로 실행합니다.
+관리자 페이지의 Host 검사만으로는 네트워크가 제한되지 않습니다. **포트 80의 `/admin` 접근은
+Tailscale 외의 인터페이스에서 방화벽으로 차단**해야 합니다. 현재 운영 주소와 비밀번호 정보는 서버 설정을 참고하세요.
+
+SQLite DB는 WAL 모드입니다. 백업은 실행 중 파일을 그냥 복사하지 말고 SQLite의 `.backup` API로 만들거나
+서비스를 중지한 후 DB/WAL 파일을 함께 복사하세요. 업로드 이미지가 추가되면 이미지 디렉터리도 별도 백업해야 합니다.
 
 ## 검증
 
@@ -76,15 +59,8 @@ npm run dev
 npm run lint
 npm test
 npm run build
-docker build -t blog:local .
+npm audit --omit=dev
 ```
 
-## 운영 연결
-
-| 경로 | 용도 |
-| --- | --- |
-| `/health/live` | Kubernetes liveness probe |
-| `/health/ready` | Kubernetes readiness probe |
-| `/metrics` | Prometheus 지표 |
-
-`main` 브랜치와 `v*.*.*` 태그는 `ghcr.io/maackia/blog` 이미지를 게시합니다. 실제 Deployment, Service, Ingress, ServiceMonitor와 Grafana 설정은 `container-platform-lab`에서 관리합니다.
+`main`과 `v*.*.*`는 GitHub Actions에서 GHCR 이미지를 발행합니다. 이미지에 SQLite DB는 포함하지 않습니다.
+컨테이너로 운영한다면 `/data`를 영속 볼륨으로 연결하고 관리자 비밀값을 별도로 주입하세요.

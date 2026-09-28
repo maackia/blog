@@ -1,22 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
-import { z } from "zod";
-import type { Channel } from "@/lib/channels";
-
-const postsDirectory = path.join(process.cwd(), "content", "posts");
-
-const frontmatterSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  publishedAt: z.coerce.date(),
-  channel: z.enum(["life", "tech"]),
-  updatedAt: z.coerce.date().optional(),
-  tags: z.array(z.string().min(1)).default([]),
-  coverImage: z.string().startsWith("/").optional(),
-  featured: z.boolean().default(false),
-  draft: z.boolean().default(false),
-});
+import type { Channel } from "./channels";
+import { findPost, listPosts } from "./store";
 
 export type Post = {
   slug: string;
@@ -32,43 +15,17 @@ export type Post = {
   content: string;
 };
 
-function parsePost(fileName: string): Post {
-  const slug = fileName.replace(/\.mdx$/, "");
-  const fullPath = path.join(postsDirectory, fileName);
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
-  const frontmatter = frontmatterSchema.parse(data);
-
+function toPublicPost(post: ReturnType<typeof listPosts>[number]): Post {
   return {
-    slug,
-    title: frontmatter.title,
-    description: frontmatter.description,
-    publishedAt: frontmatter.publishedAt.toISOString(),
-    updatedAt: frontmatter.updatedAt?.toISOString(),
-    channel: frontmatter.channel,
-    tags: frontmatter.tags,
-    coverImage: frontmatter.coverImage,
-    featured: frontmatter.featured,
-    draft: frontmatter.draft,
-    content,
+    slug: post.slug, title: post.title, description: post.description,
+    publishedAt: post.publishedAt!, updatedAt: post.updatedAt,
+    channel: post.channel, tags: post.tags, coverImage: post.coverImage,
+    featured: post.featured, draft: false, content: post.content,
   };
 }
 
 export function getAllPosts(): Post[] {
-  if (!fs.existsSync(postsDirectory)) {
-    return [];
-  }
-
-  return fs
-    .readdirSync(postsDirectory)
-    .filter((fileName) => fileName.endsWith(".mdx"))
-    .map(parsePost)
-    .filter((post) => !post.draft)
-    .sort(
-      (left, right) =>
-        new Date(right.publishedAt).getTime() -
-        new Date(left.publishedAt).getTime(),
-    );
+  return listPosts().map(toPublicPost);
 }
 
 export function getPostsByChannel(channel: Channel): Post[] {
@@ -76,17 +33,8 @@ export function getPostsByChannel(channel: Channel): Post[] {
 }
 
 export function getPostBySlug(slug: string, channel?: Channel): Post | undefined {
-  if (!/^[a-z0-9-]+$/.test(slug)) {
-    return undefined;
-  }
-
-  const filePath = path.join(postsDirectory, `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) {
-    return undefined;
-  }
-
-  const post = parsePost(`${slug}.mdx`);
-  return channel && post.channel !== channel ? undefined : post;
+  const post = findPost(slug);
+  return post && (!channel || post.channel === channel) ? toPublicPost(post) : undefined;
 }
 
 export function getAllTags(channel?: Channel): string[] {
@@ -101,9 +49,6 @@ export function getPostsByTag(tag: string, channel?: Channel): Post[] {
 
 export function formatDate(value: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Seoul",
+    year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Seoul",
   }).format(new Date(value));
 }

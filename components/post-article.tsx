@@ -1,10 +1,9 @@
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/posts";
+import { RestrictedMdx } from "@/lib/render-mdx";
 
 export function PostArticle({ post }: { post: Post }) {
   return (
@@ -52,10 +51,7 @@ export function PostArticle({ post }: { post: Post }) {
       ) : null}
 
       <div className="prose prose-lg prose-blog mt-12 max-w-none">
-        <MDXRemote
-          options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
-          source={post.content}
-        />
+        <RestrictedMdx source={post.content} />
       </div>
     </article>
   );
