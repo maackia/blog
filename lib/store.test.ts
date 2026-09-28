@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { closeDatabase } from "./db";
-import { deletePost, findPost, listPosts, savePost } from "./store";
+import { deletePost, findPost, listPosts, savePost, restorePost, purgePost } from "./store";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "blog-store-"));
 process.env.BLOG_DB_PATH = path.join(dir, "test.sqlite");
@@ -27,6 +27,13 @@ describe("SQLite post store", () => {
     expect(updated.title).toBe("수정");
     expect(deletePost("first-post")).toBe(true);
     expect(listPosts()).toHaveLength(0);
+    expect(findPost("first-post", true)?.deletedAt).toBeTruthy();
+    expect(restorePost("first-post")).toBe(true);
+    expect(findPost("first-post")).toBeUndefined();
+    expect(findPost("first-post", true)?.status).toBe("draft");
+    expect(purgePost("first-post")).toBe(false);
+    deletePost("first-post");
+    expect(purgePost("first-post")).toBe(true);
   });
   it("rejects unsafe slugs and duplicate posts", () => {
     expect(findPost("../foo", true)).toBeUndefined();

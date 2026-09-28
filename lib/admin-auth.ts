@@ -1,5 +1,6 @@
 import "server-only";
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { credentials, passwordMatches } from "./credentials";
 import { SignJWT, jwtVerify } from "jose";
 import type { NextRequest } from "next/server";
 
@@ -13,16 +14,10 @@ function secret() {
   return new TextEncoder().encode(value);
 }
 
-export function checkPassword(input: string) {
-  const stored = process.env.BLOG_ADMIN_PASSWORD_HASH ?? "";
-  const match = /^scrypt:([a-f0-9]{32}):([a-f0-9]{128})$/.exec(stored);
-  if (!match || input.length > 1024) return false;
-  const calculated = scryptSync(input, Buffer.from(match[1], "hex"), 64);
-  return timingSafeEqual(calculated, Buffer.from(match[2], "hex"));
-}
+export const checkPassword = passwordMatches;
 
 export async function createSession() {
-  return new SignJWT({ role: "admin" }).setProtectedHeader({ alg: "HS256" })
+  return new SignJWT({ role: "admin", version: credentials()?.version ?? "initial" }).setProtectedHeader({ alg: "HS256" })
     .setIssuedAt().setExpirationTime(`${sessionAge}s`).sign(secret());
 }
 
@@ -30,7 +25,7 @@ export async function validSession(token?: string) {
   if (!token) return false;
   try {
     const { payload } = await jwtVerify(token, secret(), { algorithms: ["HS256"] });
-    return payload.role === "admin";
+    return payload.role === "admin" && payload.version === (credentials()?.version ?? "initial");
   } catch { return false; }
 }
 
@@ -62,8 +57,8 @@ export function sameOrigin(request: NextRequest) {
 export function isAdminNetwork(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   const local = process.env.BLOG_TAILSCALE_IP;
-  // A valid Host header does not prove the incoming interface. An nftables rule
-  // at deployment blocks /admin traffic from non-Tailscale peers at the socket.
+  // Host checks are defense in depth, NOT network authentication.
+  // Deployment must bind the socket only to the Tailscale IP.
   return !!local && host === local;
 }
 

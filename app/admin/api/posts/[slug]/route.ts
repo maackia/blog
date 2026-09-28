@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { ZodError } from "zod";
 import { authenticated, isAdminNetwork, sameOrigin, verifyCsrf } from "@/lib/admin-auth";
-import { deletePost, findPost, savePost } from "@/lib/store";
+import { deletePost, findPost, savePost, restorePost, purgePost } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ slug: string }> };
@@ -24,6 +24,14 @@ export async function PUT(request: NextRequest, context: Context) {
 export async function DELETE(request: NextRequest, context: Context) {
   if (!await allow(request)) return new Response(null, { status: 403 });
   const { slug } = await context.params;
-  if (!deletePost(slug)) return new Response(null, { status: 404 });
+  const removed = request.nextUrl.searchParams.get("permanent") === "true" ? purgePost(slug) : deletePost(slug);
+  if (!removed) return new Response(null, { status: 404 });
   return new Response(null, { status: 204 });
+}
+
+export async function PATCH(request: NextRequest, context: Context) {
+  if (!await allow(request)) return new Response(null, { status: 403 });
+  const { slug } = await context.params;
+  if (!restorePost(slug)) return new Response(null, { status: 404 });
+  return Response.json({ ok: true });
 }
