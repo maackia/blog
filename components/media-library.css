@@ -17,6 +17,5 @@
 .media-details details { font-size: 12px; color: var(--admin-muted); overflow-wrap: anywhere; }
 .media-details summary { cursor: pointer; }
 .media-details ul { list-style: disc; padding-left: 20px; margin-top: 8px; }
-.admin-app .media-picker-toggle { border: 1px solid var(--admin-line); }
 .media-insert-notice { margin: 0 0 20px; }
 @media(max-width:640px) { .media-dropzone { padding: 18px 12px; } .media-library .admin-section-heading { flex-wrap: wrap; } }
