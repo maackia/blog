@@ -131,7 +131,8 @@ try {
   await page.getByRole("button", { name: "글 관리", exact: true }).click();
   await expect(page.getByRole("heading", { name: "새 글 작성" })).toBeVisible();
   check("split preview and unsaved navigation warning");
-  await page.getByRole("button", { name: "사진 선택·업로드", exact: true }).click();
+  await expect(page.getByRole("button", { name: "사진 선택·업로드", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "편집기 사진 선택" })).toBeVisible();
   await page.getByRole("button", { name: "본문에 삽입", exact: true }).click();
   await expect(page.getByLabel("MDX 본문", { exact: true })).toHaveValue(new RegExp(photo.id));
   await page.getByRole("button", { name: "대표 이미지로", exact: true }).click();
