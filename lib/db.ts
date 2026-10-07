@@ -35,8 +35,12 @@ export function openDatabase(file = process.env.BLOG_DB_PATH ?? path.join(proces
   db.exec("CREATE TABLE IF NOT EXISTS admin_credentials (id INTEGER PRIMARY KEY CHECK(id=1), password_hash TEXT NOT NULL, version TEXT NOT NULL)");
   db.exec(`CREATE TABLE IF NOT EXISTS media (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, width INTEGER NOT NULL, height INTEGER NOT NULL,
-    bytes INTEGER NOT NULL, original_bytes INTEGER NOT NULL, created_at TEXT NOT NULL
+    bytes INTEGER NOT NULL, original_bytes INTEGER NOT NULL, thumb_bytes INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
   )`);
+  // Additive migration: media uploaded before thumbnails existed keep thumb_bytes = 0.
+  if (!(db.pragma("table_info(media)") as { name: string }[]).some((column) => column.name === "thumb_bytes")) {
+    db.exec("ALTER TABLE media ADD COLUMN thumb_bytes INTEGER NOT NULL DEFAULT 0");
+  }
   connection = db;
   return db;
 }

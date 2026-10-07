@@ -6,7 +6,9 @@ import { openDatabase } from "./db";
 
 export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 export const MEDIA_QUOTA_BYTES = 1024 * 1024 * 1024;
-export type Media = { id: string; name: string; width: number; height: number; bytes: number; original_bytes: number; created_at: string };
+export const THUMB_WIDTH = 320;
+export const THUMB_QUALITY = 70;
+export type Media = { id: string; name: string; width: number; height: number; bytes: number; original_bytes: number; thumb_bytes: number; created_at: string };
 export type MediaUse = { slug: string; title: string; status: string; deleted_at: string | null };
 export class MediaError extends Error {
   constructor(message: string, public status = 400) { super(message); }
@@ -15,6 +17,8 @@ export function mediaDirectory() {
   return process.env.BLOG_MEDIA_DIR ?? path.join(path.dirname(process.env.BLOG_DB_PATH ?? path.join(process.cwd(), "data/blog.sqlite")), "media");
 }
 export function mediaUrl(id: string) { return `/media/${id}.webp`; }
+export function thumbUrl(id: string) { return `/media/thumb/${id}.webp`; }
+export function thumbFile(id: string) { return path.join(mediaDirectory(), `${id}-thumb.webp`); }
 export function findMedia(id: string) {
   if (!/^[a-f0-9-]{36}$/.test(id)) return undefined;
   return openDatabase().prepare("SELECT * FROM media WHERE id=?").get(id) as Media | undefined;
@@ -24,15 +28,22 @@ export function mediaUsage(id: string): MediaUse[] {
   return openDatabase().prepare("SELECT slug,title,status,deleted_at FROM posts WHERE instr(content,?) > 0 OR instr(COALESCE(cover_image,''),?) > 0")
     .all(id, id) as MediaUse[];
 }
+export function mediaView(item: Media) {
+  return { ...item, url: mediaUrl(item.id), thumbUrl: item.thumb_bytes ? thumbUrl(item.id) : null };
+}
 export function listMedia() {
   const db = openDatabase();
   const items = db.prepare("SELECT * FROM media ORDER BY created_at DESC, id").all() as Media[];
-  return { items: items.map((item) => ({ ...item, url: mediaUrl(item.id), usage: mediaUsage(item.id) })), usedBytes: items.reduce((total, item) => total + item.bytes, 0), quotaBytes: MEDIA_QUOTA_BYTES, maxUploadBytes: MAX_UPLOAD_BYTES };
+  return { items: items.map((item) => ({ ...mediaView(item), usage: mediaUsage(item.id) })), usedBytes: items.reduce((total, item) => total + item.bytes + item.thumb_bytes, 0), quotaBytes: MEDIA_QUOTA_BYTES, maxUploadBytes: MAX_UPLOAD_BYTES };
 }
 export function validateMediaReferences(text: string) {
   for (const match of text.matchAll(/\/media\/([a-f0-9-]{36})\.webp/g)) {
     if (!findMedia(match[1])) throw new MediaError("선택한 사진이 삭제되었습니다. 다른 사진을 선택해 주세요.");
   }
+}
+
+async function makeThumb(source: Buffer) {
+  return sharp(source, { limitInputPixels: false }).resize({ width: THUMB_WIDTH, height: THUMB_WIDTH, fit: "inside", withoutEnlargement: true }).webp({ quality: THUMB_QUALITY }).toBuffer();
 }
 
 let processing = false;
@@ -55,21 +66,43 @@ export async function uploadMedia(input: Buffer, filename: string): Promise<Medi
       if (error instanceof MediaError) throw error;
       throw new MediaError("읽을 수 없는 이미지이거나 최대 4천만 화소를 초과했습니다.");
     }
-    const item: Media = { id: randomUUID(), name: path.basename(filename.replaceAll("\\", "/")).replace(/[\u0000-\u001f]/g, "").slice(0, 180) || "사진", width: result.info.width, height: result.info.height, bytes: result.data.length, original_bytes: input.length, created_at: new Date().toISOString() };
+    const thumb = await makeThumb(result.data);
+    const item: Media = { id: randomUUID(), name: path.basename(filename.replaceAll("\\", "/")).replace(/[\u0000-\u001f]/g, "").slice(0, 180) || "사진", width: result.info.width, height: result.info.height, bytes: result.data.length, original_bytes: input.length, thumb_bytes: thumb.length, created_at: new Date().toISOString() };
     const directory = mediaDirectory();
     fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
-    if (fs.statfsSync(directory).bavail * fs.statfsSync(directory).bsize < item.bytes + 256 * 1024 * 1024) throw new MediaError("디스크 여유 공간이 부족합니다.", 507);
+    const needed = item.bytes + item.thumb_bytes;
+    const stat = fs.statfsSync(directory);
+    if (stat.bavail * stat.bsize < needed + 256 * 1024 * 1024) throw new MediaError("디스크 여유 공간이 부족합니다.", 507);
     const db = openDatabase();
-    const file = path.join(directory, `${item.id}.webp`);
+    const full = path.join(directory, `${item.id}.webp`);
+    const preview = path.join(directory, `${item.id}-thumb.webp`);
     db.transaction(() => {
-      const { total } = db.prepare("SELECT COALESCE(SUM(bytes),0) total FROM media").get() as { total: number };
-      if (total + item.bytes > MEDIA_QUOTA_BYTES) throw new MediaError("미디어 저장 한도 1GB를 초과했습니다.", 413);
-      fs.writeFileSync(file, result.data, { flag: "wx", mode: 0o600 });
-      try { db.prepare("INSERT INTO media(id,name,width,height,bytes,original_bytes,created_at) VALUES(?,?,?,?,?,?,?)").run(item.id,item.name,item.width,item.height,item.bytes,item.original_bytes,item.created_at); }
-      catch (error) { fs.unlinkSync(file); throw error; }
+      const { total } = db.prepare("SELECT COALESCE(SUM(bytes + thumb_bytes),0) total FROM media").get() as { total: number };
+      if (total + needed > MEDIA_QUOTA_BYTES) throw new MediaError("미디어 저장 한도 1GB를 초과했습니다.", 413);
+      const written: string[] = [];
+      try {
+        for (const [file, buffer] of [[full, result.data], [preview, thumb]] as const) {
+          fs.writeFileSync(file, buffer, { flag: "wx", mode: 0o600 });
+          written.push(file);
+        }
+        db.prepare("INSERT INTO media(id,name,width,height,bytes,original_bytes,thumb_bytes,created_at) VALUES(?,?,?,?,?,?,?,?)").run(item.id,item.name,item.width,item.height,item.bytes,item.original_bytes,item.thumb_bytes,item.created_at);
+      } catch (error) {
+        for (const file of written) { try { fs.unlinkSync(file); } catch { /* already removed */ } }
+        throw error;
+      }
     })();
     return item;
   } finally { processing = false; }
+}
+
+// Backfill for media stored before thumbnails existed.
+export async function buildThumb(id: string) {
+  const item = findMedia(id);
+  if (!item) throw new MediaError("사진을 찾을 수 없습니다.", 404);
+  const thumb = await makeThumb(fs.readFileSync(path.join(mediaDirectory(), `${id}.webp`)));
+  fs.writeFileSync(thumbFile(id), thumb, { flag: "wx", mode: 0o600 });
+  openDatabase().prepare("UPDATE media SET thumb_bytes=? WHERE id=?").run(thumb.length, id);
+  return thumb.length;
 }
 
 export function removeMedia(id: string) {
@@ -78,8 +111,10 @@ export function removeMedia(id: string) {
     if (!findMedia(id)) throw new MediaError("사진을 찾을 수 없습니다.", 404);
     if (mediaUsage(id).length) throw new MediaError("글에서 사용 중인 사진입니다. 임시저장·휴지통의 글에서도 사진 참조를 먼저 제거해 주세요.", 409);
     // Unlink first: on filesystem failure keep the DB row and return an error.
-    try { fs.unlinkSync(path.join(mediaDirectory(), `${id}.webp`)); }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    for (const file of [path.join(mediaDirectory(), `${id}.webp`), thumbFile(id)]) {
+      try { fs.unlinkSync(file); }
+      catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    }
     db.prepare("DELETE FROM media WHERE id=?").run(id);
   })();
 }

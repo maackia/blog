@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { authenticated, isAdminNetwork, sameOrigin, verifyCsrf } from "@/lib/admin-auth";
-import { listMedia, uploadMedia, MediaError, MAX_UPLOAD_BYTES } from "@/lib/media";
+import { listMedia, uploadMedia, mediaView, MediaError, MAX_UPLOAD_BYTES } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
     const filename = decodeURIComponent(request.headers.get("x-file-name") ?? "photo");
     const item = await uploadMedia(Buffer.concat(chunks), filename);
-    return Response.json(item, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return Response.json(mediaView(item), { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof MediaError) return Response.json({ error: error.message }, { status: error.status });
     return Response.json({ error: "사진 업로드에 실패했습니다. 파일과 저장 공간을 확인해 주세요." }, { status: 500 });

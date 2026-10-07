@@ -4,7 +4,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { afterAll, expect, it } from "vitest";
 import { closeDatabase, openDatabase } from "./db";
-import { uploadMedia, removeMedia, listMedia, mediaUrl, MAX_UPLOAD_BYTES, MEDIA_QUOTA_BYTES } from "./media";
+import { uploadMedia, removeMedia, listMedia, buildThumb, mediaUrl, thumbUrl, THUMB_WIDTH, MAX_UPLOAD_BYTES, MEDIA_QUOTA_BYTES } from "./media";
 import { savePost, deletePost, purgePost } from "./store";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "media-test-"));
@@ -20,10 +20,24 @@ it("optimizes, strips metadata, safely names and persists an image", async () =>
   const meta = await sharp(path.join(dir, "media", `${item.id}.webp`)).metadata();
   expect(meta.format).toBe("webp");
   expect(meta.exif).toBeUndefined();
+  expect(item.thumb_bytes).toBeGreaterThan(0);
+  const thumb = await sharp(path.join(dir, "media", `${item.id}-thumb.webp`)).metadata();
+  expect(thumb.width).toBe(THUMB_WIDTH);
+  expect(listMedia().items[0].thumbUrl).toBe(thumbUrl(item.id));
   closeDatabase();
   expect(listMedia().items).toHaveLength(1);
   removeMedia(item.id);
   expect(fs.existsSync(path.join(dir, "media", `${item.id}.webp`))).toBe(false);
+  expect(fs.existsSync(path.join(dir, "media", `${item.id}-thumb.webp`))).toBe(false);
+});
+it("backfills a thumbnail for media stored before thumbnails existed", async () => {
+  const item = await uploadMedia(await photo(), "legacy.jpg");
+  fs.unlinkSync(path.join(dir, "media", `${item.id}-thumb.webp`));
+  openDatabase().prepare("UPDATE media SET thumb_bytes=0 WHERE id=?").run(item.id);
+  expect(listMedia().items[0].thumbUrl).toBeNull();
+  expect(await buildThumb(item.id)).toBeGreaterThan(0);
+  expect(listMedia().items[0].thumbUrl).toBe(thumbUrl(item.id));
+  removeMedia(item.id);
 });
 it("accepts a 50MiB JPEG and persists only its optimized WebP", async () => {
   const jpeg = await photo();
@@ -31,7 +45,7 @@ it("accepts a 50MiB JPEG and persists only its optimized WebP", async () => {
   const item = await uploadMedia(upload, "large-camera.jpg");
   expect(item.original_bytes).toBe(50 * 1024 * 1024);
   expect(item.bytes).toBeLessThan(item.original_bytes);
-  expect(fs.readdirSync(path.join(dir, "media"))).toEqual([`${item.id}.webp`]);
+  expect(fs.readdirSync(path.join(dir, "media")).sort()).toEqual([`${item.id}-thumb.webp`, `${item.id}.webp`]);
   removeMedia(item.id);
 });
 it("rejects corrupt, disguised SVG, oversized uploads and exceeded quota", async () => {
