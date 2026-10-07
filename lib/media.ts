@@ -99,10 +99,35 @@ export async function uploadMedia(input: Buffer, filename: string): Promise<Medi
 export async function buildThumb(id: string) {
   const item = findMedia(id);
   if (!item) throw new MediaError("사진을 찾을 수 없습니다.", 404);
-  const thumb = await makeThumb(fs.readFileSync(path.join(mediaDirectory(), `${id}.webp`)));
-  fs.writeFileSync(thumbFile(id), thumb, { flag: "wx", mode: 0o600 });
-  openDatabase().prepare("UPDATE media SET thumb_bytes=? WHERE id=?").run(thumb.length, id);
-  return thumb.length;
+  if (item.thumb_bytes) return item.thumb_bytes;
+  if (processing) throw new MediaError("다른 사진을 처리 중입니다. 잠시 후 다시 시도해 주세요.", 429);
+  processing = true;
+  try {
+    const file = thumbFile(id);
+    // Recover a file left behind if a previous backfill stopped before its DB update.
+    const existing = fs.existsSync(file);
+    const thumb = await makeThumb(fs.readFileSync(path.join(mediaDirectory(), `${id}.webp`)));
+    const stat = fs.statfsSync(mediaDirectory());
+    if (stat.bavail * stat.bsize < thumb.length + 256 * 1024 * 1024) throw new MediaError("디스크 여유 공간이 부족합니다.", 507);
+    const db = openDatabase();
+    db.transaction(() => {
+      const current = findMedia(id);
+      if (!current) throw new MediaError("사진을 찾을 수 없습니다.", 404);
+      if (current.thumb_bytes) return;
+      const { total } = db.prepare("SELECT COALESCE(SUM(bytes + thumb_bytes),0) total FROM media").get() as { total: number };
+      if (total + thumb.length > MEDIA_QUOTA_BYTES) throw new MediaError("미디어 저장 한도 1GB를 초과했습니다.", 413);
+      let written = false;
+      try {
+        fs.writeFileSync(file, thumb, { flag: existing ? "w" : "wx", mode: 0o600 });
+        written = true;
+        db.prepare("UPDATE media SET thumb_bytes=? WHERE id=?").run(thumb.length, id);
+      } catch (error) {
+        if (written) fs.unlinkSync(file);
+        throw error;
+      }
+    })();
+    return findMedia(id)!.thumb_bytes;
+  } finally { processing = false; }
 }
 
 export function removeMedia(id: string) {

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { calloutRanges, imageInsertion, markdownImage, safeAlt } from "./markdown";
+import { assertSafeMdx } from "./safe-mdx";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
 
 describe("markdown insertion helpers", () => {
   it("neutralises characters the MDX validator rejects in alt text", () => {
@@ -13,6 +16,14 @@ describe("markdown insertion helpers", () => {
     expect(markdownImage("IMG_{2024}.jpg", "/media/00000000-0000-0000-0000-000000000000.webp")).toBe(
       "![IMG_ 2024 .jpg](/media/00000000-0000-0000-0000-000000000000.webp)");
   });
+  it("keeps backslashes from escaping the closing alt bracket", () => {
+    const source = markdownImage("photo\\", "/media/photo.webp");
+    expect(() => assertSafeMdx(source)).not.toThrow();
+    const tree = unified().use(remarkParse).parse(source);
+    const paragraph = tree.children[0];
+    expect(paragraph.type).toBe("paragraph");
+    if (paragraph.type === "paragraph") expect(paragraph.children[0].type).toBe("image");
+  });
   it("finds Callout blocks so images are never inserted inside them", () => {
     const text = 'intro\n\n<Callout title="팁">plain text</Callout>\n\nend';
     const ranges = calloutRanges(text);
@@ -21,6 +32,9 @@ describe("markdown insertion helpers", () => {
     const insertion = imageInsertion(text, caret);
     expect(insertion.movedOutOfCallout).toBe(true);
     expect(insertion.position).toBe(ranges[0][1]);
+    expect(insertion.block).toBe(true);
+    const result = `${text.slice(0, insertion.position)}\n\n${markdownImage("photo", "/media/photo.webp")}${text.slice(insertion.position)}`;
+    expect(() => assertSafeMdx(result)).not.toThrow();
   });
   it("keeps block images at block boundaries and inline images inside a paragraph", () => {
     expect(imageInsertion("# 제목\n\n", 6).block).toBe(true);

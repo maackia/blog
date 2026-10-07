@@ -1,7 +1,7 @@
 // Markdown helpers without Node APIs so client components can import them.
 // The MDX validator rejects raw HTML and JSX expressions, and unbalanced brackets
 // silently break image syntax, so file names must be neutralised before insertion.
-const ALT_DANGEROUS = /[\[\]()<>{}!]/g;
+const ALT_DANGEROUS = /[\\\[\]()<>{}!]/g;
 
 export function safeAlt(name: string): string {
   return name.replace(ALT_DANGEROUS, " ").replace(/\s+/g, " ").trim() || "사진";
@@ -30,6 +30,6 @@ export function imageInsertion(text: string, caret: number): { position: number;
   }
   const before = text.slice(0, position);
   const after = text.slice(position);
-  const block = (!before || before.endsWith("\n")) && (!after || after.startsWith("\n"));
+  const block = movedOutOfCallout || ((!before || before.endsWith("\n")) && (!after || after.startsWith("\n")));
   return { position, block, movedOutOfCallout };
 }

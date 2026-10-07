@@ -37,6 +37,20 @@ it("backfills a thumbnail for media stored before thumbnails existed", async () 
   expect(listMedia().items[0].thumbUrl).toBeNull();
   expect(await buildThumb(item.id)).toBeGreaterThan(0);
   expect(listMedia().items[0].thumbUrl).toBe(thumbUrl(item.id));
+  expect(await buildThumb(item.id)).toBe(listMedia().items[0].thumb_bytes);
+  // Simulate interruption between writing the thumbnail and recording its size.
+  openDatabase().prepare("UPDATE media SET thumb_bytes=0 WHERE id=?").run(item.id);
+  expect(await buildThumb(item.id)).toBeGreaterThan(0);
+  removeMedia(item.id);
+});
+it("backfill honours the quota without leaving new thumbnail files", async () => {
+  const item = await uploadMedia(await photo(), "full-legacy.jpg");
+  const file = path.join(dir, "media", `${item.id}-thumb.webp`);
+  fs.unlinkSync(file);
+  openDatabase().prepare("UPDATE media SET bytes=?,thumb_bytes=0 WHERE id=?").run(MEDIA_QUOTA_BYTES, item.id);
+  await expect(buildThumb(item.id)).rejects.toThrow("1GB");
+  expect(fs.existsSync(file)).toBe(false);
+  expect(listMedia().items[0].thumb_bytes).toBe(0);
   removeMedia(item.id);
 });
 it("accepts a 50MiB JPEG and persists only its optimized WebP", async () => {
